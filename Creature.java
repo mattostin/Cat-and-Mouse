@@ -1,135 +1,113 @@
 import java.util.Random;
 
-public class Creature {
-
-    
-    // Note, that output should be in (x,y) format as
-    // the plotter expects it in that format.
-
-
-    // dir: 0=North, 1=East, 2=South, 3=West.
-    // 
-    //
-    //
-    //               N (r-1,c+0)
-    //               0
-    //(r+0,c-1) W 3 [ ]  1 E (r+0,c+1)
-    //               2
-    //               S (r+1,c+0)
-    //
-    //
-    // 
-    // 
-    
+public abstract class Creature {
+    // Constants for directions
     public final static int NORTH = 0;
     public final static int EAST = 1;
     public final static int SOUTH = 2;
     public final static int WEST = 3;
     public final static int NUM_DIRS = 4;
-    public final static int[] DIRS = {NORTH,EAST,SOUTH,WEST};
+    public final static int[] DIRS = {NORTH, EAST, SOUTH, WEST};
 
-
-    //Use the index of the direction to determine how to add to a row or column
-    //For example, if NORTH (index 0), the we subtract 1 from Y, and add 0 to X
-    //direction
-    protected final int[] dirY = {-1,0,1,0};
+    // Arrays to determine movement in each direction
+    protected final int[] dirY = {-1, 0, 1, 0};
     protected final int[] dirX = {0, 1, 0, -1};
 
+    // Constants for point colors
+    public final static char LAB_BLACK = 'k';
+    public final static char LAB_BLUE = 'b';
+    public final static char LAB_RED = 'r';
+    public final static char LAB_YELLOW = 'y';
+    public final static char LAB_ORANGE = 'o';
+    public final static char LAB_PINK = 'p';
+    public final static char LAB_MAGENTA = 'm';
+    public final static char LAB_CYAN = 'c';
+    public final static char LAB_GREEN = 'g';
+    public final static char LAB_GRAY = 'e';
 
-    //Point Colors -- handy contests to use to make your code more readiable
-    public final static char LAB_BLACK='k';
-    public final static char LAB_BLUE='b';
-    public final static char LAB_RED='r';
-    public final static char LAB_YELLOW='y';
-    public final static char LAB_ORANGE='o';
-    public final static char LAB_PINK='p';
-    public final static char LAB_MAGENTA='m';
-    public final static char LAB_CYAN='c';
-    public final static char LAB_GREEN='g';
-    public final static char LAB_GRAY='e';
+    // Attributes for a creature
+    private int dir;             // Current direction
+    private GridPoint point;     // Current position
+    protected char lab;          // Color label
+    protected Random rand;       // Random number generator
+    protected City city;         // Reference to the city
+    protected boolean dead;     // Flag to indicate if the creature is dead
+    protected int stepLen;      // Step length
 
-
-    //current direction facing
-    private int dir;
-
-    //current point in grid
-    private GridPoint point;
-
-    //current color label for the point
-    protected char lab;
-
-    //random instance
-    protected Random rand;
-
-    //City in which this creature lives so that it can update it's
-    //location and get other information it might need (like the
-    //location of other creatures) when making decisions.    
-    protected City city;
-
-    //boolean to set when this creature is dead
-    protected boolean dead;
-
-    //how wide the steps are
-    protected int stepLen;
-
-    public Creature(int x, int y, City cty, Random rnd){
-        //DEFAULT Constructor
-        point = new GridPoint(x,y);
+    // Constructor for a creature
+    public Creature(int x, int y, City cty, Random rnd) {
+        point = new GridPoint(x, y);
         city = cty;
         rand = rnd;
         lab = LAB_GRAY;
         dir = rand.nextInt(NUM_DIRS);
-        dead= false;
-        stepLen=1;
+        dead = false;
+        stepLen = 1;
     }
 
-    public boolean isDead(){ return dead;}
+    // Getter to check if the creature is dead
+    public boolean isDead() {
+        return dead;
+    }
 
-    
-    //getter/setter methods
-    public int getY(){
+    // Getters for the current position
+    public int getY() {
         return point.y;
     }
-    public int getX(){
+
+    public int getX() {
         return point.x;
     }
-    public GridPoint getGridPoint(){
-        return new GridPoint(point); //return a copy to preseve
-                                     //encapsulation
+
+    // Get a copy of the current grid point
+    public GridPoint getGridPoint() {
+        return new GridPoint(point);
     }
-    
-    public char getLab(){
+
+    // Get the color label
+    public char getLab() {
         return lab;
     }
-    public void setDir(int dir){
+
+    // Set the current direction
+    public void setDir(int dir) {
         this.dir = dir;
     }
-    public int getDir(){
-        return this.dir;
+
+    // Get the current direction
+    public int getDir() {
+        return dir;
     }
 
-
-    //compute the distance to another creature
-    public int dist(Creature c){
+    // Compute the distance to another creature
+    public int dist(Creature c) {
         return point.dist(c.getGridPoint());
     }
 
-    //make a random turn
+    // Make a random turn
     public void randomTurn() {
         this.dir = rand.nextInt(4);
     }
 
-    
-    //TODO: add the methods below to the appropriate class(es)
-    //  void step()
-    //  void takeAction()
+    // Method to be overridden by subclasses for movement logic
+    public void step() {
+        // Implement the step logic for a generic creature
+        // This method can be overridden by subclasses to define specific behavior
+        int newX = (getX() + dirX[getDir()] * stepLen + city.WIDTH)%city.WIDTH;
+        int newY = (getY() + dirY[getDir()] * stepLen + city.HEIGHT)%city.HEIGHT;
 
-
-    
-    //To string so you can output a creature to the plotter
-    public String toString() {
-        //output in (x,y) format
-        return ""+this.point.x+" "+this.point.y+" "+lab;
+        point.x = newX;
+        point.y = newY;
     }
 
+    // Method to be overridden by subclasses for action logic
+    public abstract void takeAction() ;
+        // Implement the takeAction logic for a generic creature
+        // This method can be overridden by subclasses to define specific behavior
+    
+
+    // Convert the creature's attributes to a string for output
+    public String toString() {
+        return "" + this.point.x + " " + this.point.y + " " + lab;
+    }
 }

@@ -1,117 +1,87 @@
 import java.util.*;
 
-public class City{
-
-
-    //Determine the City Grid based on the size of the Plotter
+public class City {
     public static final int WIDTH = 80;
     public static final int HEIGHT = 80;
 
-    
-    // The Grid World for your reference
-    //
-    //        
-    //       (x)
-    //        0 1 2 3 4 5 ... WIDTH
-    //       .----------------...
-    //  (y) 0|           ,--y
-    //      1|      * (3,1) 
-    //      2|         ^    
-    //      3|         '-x
-    //      .|
-    //      .|
-    //      .|       
-    //HEIGHT :
-    //
-
-
-
-    //-------------------------------------
-    //The simulation's Data Structures
-    //
-    public List<Creature> creatures; //list of all creatues
+    public List<Creature> creatures;
     public Queue<Creature> creaturesToAdd;
-
-    //Random instance
     private Random rand;
-    
+    private int roundCount;
+
     public City(Random rand, int numMice, int numCats, int numZombieCats) {
         this.rand = rand;
-
+        this.roundCount = 0;
         this.creatures = new LinkedList<Creature>();
         this.creaturesToAdd = new LinkedList<Creature>();
-        
-        /* Populate mice */
-        for (int i=0; i<numMice; i++) addMouse();
-        for (int i=0; i<numCats; i++) addCat();
-        for (int i=0; i<numZombieCats; i++) addZombieCat();
+
+        for (int i = 0; i < numMice; i++) addMouse();
+        for (int i = 0; i < numCats; i++) addCat();
         addNewCreatures();
-      
     }
 
-
-    //Return the current number of creatures in the simulation
-    public int numCreatures(){
+    public int numCreatures() {
         return creatures.size();
     }
-    
-    public void addMouse(){
-        creaturesToAdd.add(new Mouse(rand.nextInt(HEIGHT),rand.nextInt(WIDTH),this,rand));
-    }
-    
-    public void addCat(){
-        
-        creaturesToAdd.add(new Cat(rand.nextInt(HEIGHT),rand.nextInt(WIDTH),this,rand));
-    }
-    
-    public void addZombieCat(){
-        creaturesToAdd.add(new ZombieCat(rand.nextInt(HEIGHT),rand.nextInt(WIDTH),this,rand));
+
+    public void addMouse() {
+        creaturesToAdd.add(new Mouse(rand.nextInt(HEIGHT), rand.nextInt(WIDTH), this, rand));
     }
 
-    //use this method to queue up a create to be added
-    public void addNewCreatures(){
-        while(!creaturesToAdd.isEmpty()){
+    public void addCat() {
+        creaturesToAdd.add(new Cat(rand.nextInt(HEIGHT), rand.nextInt(WIDTH), this, rand));
+    }
+
+    public void addNewCreatures() {
+        while (!creaturesToAdd.isEmpty()) {
             creatures.add(creaturesToAdd.remove());
         }
     }
 
-    //You need to realize in your code such that simulate works for
-    //**ALL** levels of simulation, which means you'll need to take
-    //advantage of inheritance and polymorphism.
+    public boolean isValidPosition(int x, int y) {
+        return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT;
+    }
+
     public void simulate() {
-        //DO NOT EDIT!
-        
-        //You get this one for free, but you need to review this to
-        //understand how to implement your various creatures
+        roundCount++;
 
-        //First, for all creatures ...
-        for(Creature c : creatures){
-            c.step(); 
-        } //move everyone forward one step in simulation
-        
-        //Second, for all cratures ...
-        for(Creature c : creatures){
-            c.takeAction(); 
-        }//take some action based on the new positions
+        for (Creature c : creatures) {
+            c.step();
+        }
 
-        //Third, for all creatures ...
+        for (Creature c : creatures) {
+            c.takeAction();
+        }
+
         LinkedList<Creature> deadCreatures = new LinkedList<Creature>();
-        for(Creature c: creatures){
-            if(c.isDead()) deadCreatures.add(c);
-        }//find those that are dead after the action is taken
+        for (Creature c : creatures) {
+            if (c.isDead()) {
+                deadCreatures.add(c);
+            }
+        }
 
-        //Four, for all creatures ...
-        for(Creature c: deadCreatures){
+        for (Creature c : deadCreatures) {
             creatures.remove(c);
-        }//remove any creatures that are dead
-        
-        //Five, add in any new creatures that have been added before ...
+        }
+
         addNewCreatures();
 
-        //Five, for all creatures
-        for(Creature c : creatures){
+        for (Creature c : creatures) {
             System.out.println(c);
-        }//print out all creatures
+        }
+    }
 
+    public static void main(String[] args) {
+        Random rand = new Random();
+        int numMice = 20;
+        int numCats = 10;
+        int numZombieCats = 5;
+
+        City city = new City(rand, numMice, numCats, numZombieCats);
+
+        int numRounds = 1000;
+        for (int round = 0; round < numRounds; round++) {
+            city.simulate();
+        }
     }
 }
